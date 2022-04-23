@@ -1,13 +1,10 @@
 {
   "development": {
-    "use_env_variable": "DATABASE_URL",
     "dialect": "postgres",
-    "dialectOptions": {
-      "ssl": {
-        "require": false,
-        "rejectUnauthorized": false
-      }
-    }
+    "username": "debarshi_personal",
+    "password": "dev95",
+    "database": "wetube_backend",
+    "host": "127.0.0.1"
   },
   "production": {
     "use_env_variable": "DATABASE_URL",

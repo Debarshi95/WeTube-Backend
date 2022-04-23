@@ -1,8 +1,10 @@
-const { gql } = require("apollo-server");
+const { gql } = require('apollo-server');
 
 module.exports = gql`
   type Query {
-    getUsers: [User!]
+    getAllVideos: [Video!]!
+    getAllCategories: [Category!]!
+    getAllComments: [Comment!]
   }
 
   type User {
@@ -11,6 +13,29 @@ module.exports = gql`
     token: String!
   }
 
+  type Comment {
+    id: ID!
+    content: String!
+    user: User!
+    video: Video!
+  }
+
+  type Video {
+    id: ID!
+    title: String!
+    description: String
+    likes: Int
+    viewCount: Int
+    url: String!
+    categoryId: [Category!]!
+    uploadedBy: User!
+  }
+
+  type Category {
+    id: ID!
+    name: String!
+    videoId: [Video!]!
+  }
   type Mutation {
     registerUser(
       username: String!
