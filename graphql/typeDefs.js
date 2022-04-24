@@ -27,6 +27,7 @@ module.exports = gql`
     likes: Int
     viewCount: Int
     url: String!
+    imageUrl: String!
     categoryId: [Category!]!
     uploadedBy: User!
   }
