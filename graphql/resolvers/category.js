@@ -1,5 +1,6 @@
 const { UserInputError } = require('apollo-server-express');
-const { Videos, Category } = require('../../models');
+const { Op } = require('sequelize');
+const { Videos, Category, User } = require('../../models');
 
 const getAllCategories = async () => {
   try {
@@ -8,7 +9,31 @@ const getAllCategories = async () => {
         {
           model: Videos,
           as: 'videoId',
+          include: [{ model: User, as: 'uploadedBy' }],
         },
+      ],
+    });
+    console.log({ categories: JSON.stringify(categories) });
+    return categories;
+  } catch (error) {
+    throw new UserInputError(error);
+  }
+};
+
+const getVideoByCategory = async (_, args) => {
+  try {
+    const categories = await Videos.findAll({
+      include: [
+        {
+          model: Category,
+          as: 'categoryId',
+          where: {
+            name: {
+              [Op.iLike]: args.categoryName,
+            },
+          },
+        },
+        { model: User, as: 'uploadedBy' },
       ],
     });
     console.log({ categories: JSON.stringify(categories) });
@@ -21,5 +46,6 @@ const getAllCategories = async () => {
 module.exports = {
   Query: {
     getAllCategories,
+    getVideoByCategory,
   },
 };

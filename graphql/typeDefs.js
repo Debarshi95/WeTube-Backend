@@ -5,6 +5,8 @@ module.exports = gql`
     getAllVideos: [Video!]!
     getAllCategories: [Category!]!
     getAllComments: [Comment!]
+    getVideoByCategory(categoryName: String!): [Video!]!
+    getVideoById(videoId: Int): Video!
   }
 
   type User {
@@ -28,7 +30,7 @@ module.exports = gql`
     viewCount: Int
     url: String!
     imageUrl: String!
-    categoryId: [Category!]!
+    categoryId: [Category]!
     uploadedBy: User!
   }
 
