@@ -7,7 +7,11 @@
     "dev": "nodemon ./index.js",
     "start": "node ./index.js"
   },
+  "prisma": {
+    "seed": "node utils/prisma.js"
+  },
   "dependencies": {
+    "@prisma/client": "3.13.0",
     "apollo-server": "^3.6.7",
     "apollo-server-express": "^3.6.7",
     "bcrypt": "^5.0.1",
@@ -19,7 +23,7 @@
     "nodemon": "^2.0.15",
     "pg": "^8.7.3",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.19.0"
+    "prisma": "^3.13.0"
   },
   "devDependencies": {
     "eslint": "^8.13.0"
