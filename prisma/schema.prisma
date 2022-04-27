@@ -1,0 +1,72 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User{
+  id           String         @id @default(uuid())
+  username     String
+  pic          String         @default("https://picsum.photos/200")
+  uploads      Video[]
+  likes        VideoLike[]
+  comments     Comment[]
+  views        View[]
+  createdAt    DateTime       @default(now())
+}
+
+model Video{
+  id          String      @id @default(uuid())
+  title       String
+  description String?
+  url         String
+  thumbnail   String
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  likes       VideoLike[]
+  comments    Comment[]
+  views       View[]
+  category    Category[]
+  createdAt   DateTime    @default(now())
+}
+
+
+model View{
+  id        String   @id @default(uuid())
+  userId    String?
+  videoId   String
+  user      User?    @relation(fields: [userId], references: [id])
+  video     Video    @relation(fields: [videoId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Comment{
+  id        String   @id @default(uuid())
+  text      String
+  userId    String
+  videoId   String
+  user      User     @relation(fields: [userId], references: [id])
+  video     Video    @relation(fields: [videoId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model VideoLike{
+  id        String   @id @default(uuid())
+  like      Int      @default(0)
+  userId    String
+  videoId   String
+  user      User     @relation(fields: [userId], references: [id])
+  video     Video    @relation(fields: [videoId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Category{
+   id       String   @id @default(uuid())
+   name     String 
+   videos   Video[]
+   createdAt DateTime @default(now())
+}
