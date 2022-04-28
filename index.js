@@ -4,10 +4,8 @@ const { ApolloServer } = require('apollo-server-express');
 
 const typeDefs = require('./graphql/typeDefs');
 const resolvers = require('./graphql/resolvers');
-const connectToDB = require('./utils/dbConnect');
 
-const path = '/graphql';
-const port = 4000;
+const { PATH, PORT } = require('./config/constant');
 
 const app = express();
 const server = new ApolloServer({
@@ -16,11 +14,10 @@ const server = new ApolloServer({
   context: (context) => context,
 });
 
-connectToDB();
 server.start().then(() => {
-  server.applyMiddleware({ path, app });
+  server.applyMiddleware({ PATH, app });
 });
 
-app.listen(port, () => {
-  console.log(`Server started at port ${port}`);
+app.listen(PORT, () => {
+  console.log(`Server started at port ${PORT}`);
 });
