@@ -6,7 +6,7 @@ module.exports = gql`
     getAllCategories: [Category!]!
     getAllComments: [Comment!]
     getVideoByCategory(categoryName: String!): [Video!]!
-    getVideoById(videoId: Int): Video!
+    getVideoById(videoId: String!): Video!
   }
 
   type User {
@@ -26,18 +26,16 @@ module.exports = gql`
     id: ID!
     title: String!
     description: String
-    likes: Int
-    viewCount: Int
     url: String!
-    imageUrl: String!
-    categoryId: [Category]!
-    uploadedBy: User!
+    thumbnail: String!
+    categories: [Category!]!
+    user: User!
   }
 
   type Category {
     id: ID!
     name: String!
-    videoId: [Video!]!
+    videos: [Video!]!
   }
   type Mutation {
     registerUser(

@@ -3,4 +3,3 @@ node_modules
 build
 .vscode
 yarn-error.log
-seeders

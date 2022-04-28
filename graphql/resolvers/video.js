@@ -1,17 +1,25 @@
 const { UserInputError } = require('apollo-server-express');
-const { Op } = require('sequelize');
-const { Videos, Category, User } = require('../../models');
+const prisma = require('../../utils/prisma');
 
 const getAllVideos = async () => {
   try {
-    const videos = await Videos.findAll({
-      include: [
-        { model: User, as: 'uploadedBy' },
-        { model: Category, as: 'categoryId' },
-      ],
+    const videos = await prisma.video.findMany({
+      include: {
+        user: true,
+        categories: {
+          include: {
+            category: true,
+          },
+        },
+      },
     });
 
-    return videos;
+    const result = videos.map((video) => ({
+      ...video,
+      categories: video.categories.map((category) => category.category),
+    }));
+
+    return result;
   } catch (err) {
     console.log({ err });
     throw new UserInputError(err);
@@ -19,21 +27,48 @@ const getAllVideos = async () => {
 };
 const getVideoById = async (_, args) => {
   try {
-    const video = await Videos.findOne({
+    const video = await prisma.video.findUnique({
       where: {
-        id: {
-          [Op.eq]: args.videoId,
+        id: args.videoId,
+      },
+      include: {
+        user: true,
+        categories: {
+          include: {
+            category: true,
+          },
         },
       },
-      include: [
-        {
-          model: Category,
-          as: 'categoryId',
-        },
-        { model: User, as: 'uploadedBy' },
-      ],
     });
-    console.log({ video });
+
+    const result = {
+      ...video,
+      categories: video.categories.map((category) => category.category),
+    };
+
+    return result;
+  } catch (error) {
+    throw new UserInputError(error);
+  }
+};
+
+const getVideoByCategory = async (_, args) => {
+  try {
+    const video = await prisma.video.findMany({
+      where: {
+        categories: {
+          some: {
+            category: {
+              name: args.categoryName,
+            },
+          },
+        },
+      },
+      include: {
+        user: true,
+      },
+    });
+
     return video;
   } catch (error) {
     throw new UserInputError(error);
@@ -43,5 +78,6 @@ module.exports = {
   Query: {
     getAllVideos,
     getVideoById,
+    getVideoByCategory,
   },
 };

@@ -1,8 +1,7 @@
 const bycrpt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { Op } = require('sequelize');
 
-const { User } = require('../../models');
+const prisma = require('../../utils/prisma');
 const { UserInputError } = require('apollo-server-express');
 const { validateRegister, validateLogin } = require('../../utils/validators');
 
@@ -16,9 +15,8 @@ const loginUser = async (_, args) => {
     throw new UserInputError(Object.values(errors)[0], { errors });
   }
 
-  console.log({ User });
-  const user = await User.findOne({
-    where: { username: { [Op.iLike]: username } },
+  const user = await prisma.user.findUnique({
+    where: { username },
   });
 
   if (!user) {
@@ -48,23 +46,22 @@ const registerUser = async (_, args) => {
     throw new UserInputError(Object.values(errors)[0], { errors });
   }
 
-  console.log({ User });
-  const existingUser = await User.findOne({
-    where: { username: { [Op.iLike]: username } },
+  const existingUser = await prisma.user.findUnique({
+    where: { username },
   });
-  console.log({ existingUser });
+
   if (existingUser) {
     throw new UserInputError(`Username ${username} already taken`);
   }
 
   const saltRounds = 10;
   const passwordHash = await bycrpt.hash(password, saltRounds);
-  const user = new User({
+  const user = {
     username,
     password: passwordHash,
-  });
+  };
 
-  const savedUser = await user.save();
+  const savedUser = await prisma.user.create({ data: user });
 
   const token = jwt.sign({ id: savedUser.id }, JWT_SECRET);
 

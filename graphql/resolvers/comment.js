@@ -1,19 +1,13 @@
 const { UserInputError } = require('apollo-server-express');
-const { Videos, Comments, User } = require('../../models');
+const prisma = require('../../utils/prisma');
 
 const getAllComments = async () => {
   try {
-    const comments = await Comments.findAll({
-      include: [
-        {
-          model: User,
-          as: 'user',
-        },
-        {
-          model: Videos,
-          as: 'video',
-        },
-      ],
+    const comments = await prisma.comment.findMany({
+      include: {
+        user: true,
+        category: true,
+      },
     });
     console.log({ comments });
     return comments;
