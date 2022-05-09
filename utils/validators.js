@@ -1,11 +1,14 @@
-const validateRegister = (username, password, confirmPassword) => {
+const validateRegister = (username, email, password, confirmPassword) => {
   const errors = {};
 
   if (!username || username.trim() === '') {
     errors['username'] = 'Username is required';
   }
+  if (!email || email.trim() === '') {
+    errors['email'] = 'Email is required';
+  }
   if (username?.length < 6) {
-    errors['username'] = 'Username must have 6 characters';
+    errors['username'] = 'Username must have atleast 6 characters';
   }
   if (!password || password.trim() === '') {
     errors['password'] = 'Password is required';
@@ -16,7 +19,7 @@ const validateRegister = (username, password, confirmPassword) => {
     confirmPassword.trim() === '' ||
     password !== confirmPassword
   ) {
-    errors['password'] = "Password doesn't match";
+    errors['password'] = 'Passwords donot match';
   }
   return {
     errors,
@@ -24,14 +27,14 @@ const validateRegister = (username, password, confirmPassword) => {
   };
 };
 
-const validateLogin = (username, password) => {
+const validateLogin = (email, password) => {
   const errors = {};
 
-  if (!username || username.trim() === '') {
-    errors['username'] = 'Username is required';
+  if (!email || email.trim() === '') {
+    errors['email'] = 'Email is required';
   }
-  if (username?.length < 6) {
-    errors['username'] = 'Username must have 6 characters';
+  if (email?.length < 6) {
+    errors['email'] = 'Email must have atleast 6 characters';
   }
   if (!password || password.trim() === '') {
     errors['password'] = 'Password is required';

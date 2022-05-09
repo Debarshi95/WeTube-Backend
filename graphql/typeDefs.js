@@ -7,14 +7,20 @@ module.exports = gql`
     getAllComments: [Comment!]
     getVideoByCategory(categoryName: String!): [Video!]!
     getVideoById(videoId: String!): Video!
+    getUser(token: String!): User!
   }
 
   type User {
     id: ID!
     username: String!
     token: String!
+    email: String!
   }
 
+  type Message {
+    message: String
+    success: Boolean
+  }
   type Comment {
     id: ID!
     content: String!
@@ -39,10 +45,12 @@ module.exports = gql`
   }
   type Mutation {
     registerUser(
+      email: String!
       username: String!
       password: String!
       confirmPassword: String!
     ): User!
-    loginUser(username: String!, password: String!): User!
+    loginUser(email: String!, password: String!): User!
+    logoutUser: Message
   }
 `;

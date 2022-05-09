@@ -8,6 +8,7 @@ module.exports = {
     ...videoResolver.Query,
     ...categoryResolver.Query,
     ...commentResolver.Query,
+    ...userResolver.Query,
   },
   Mutation: {
     ...userResolver.Mutation,

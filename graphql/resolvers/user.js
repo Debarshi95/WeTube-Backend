@@ -8,19 +8,19 @@ const { validateRegister, validateLogin } = require('../../utils/validators');
 const { JWT_SECRET } = require('../../constants');
 
 const loginUser = async (_, args) => {
-  const { username, password } = args;
-  const { errors, valid } = validateLogin(username, password);
+  const { email, password } = args;
+  const { errors, valid } = validateLogin(email, password);
 
   if (!valid) {
     throw new UserInputError(Object.values(errors)[0], { errors });
   }
 
   const user = await prisma.user.findUnique({
-    where: { username },
+    where: { email },
   });
 
   if (!user) {
-    throw new UserInputError(`User ${username} doesn't exist`);
+    throw new UserInputError(`User doesn't exist`);
   }
 
   const passwordMatch = await bycrpt.compare(password, user.password);
@@ -31,13 +31,23 @@ const loginUser = async (_, args) => {
 
   const token = jwt.sign({ id: user.id }, JWT_SECRET);
 
-  return { id: user.id, username: user.username, token };
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      token,
+    },
+  });
+
+  return { id: user.id, username: user.username, email: user.email, token };
 };
 
 const registerUser = async (_, args) => {
-  const { username, password, confirmPassword } = args;
+  const { username, email, password, confirmPassword } = args;
   const { errors, valid } = validateRegister(
     username,
+    email,
     password,
     confirmPassword,
   );
@@ -46,18 +56,21 @@ const registerUser = async (_, args) => {
     throw new UserInputError(Object.values(errors)[0], { errors });
   }
 
-  const existingUser = await prisma.user.findUnique({
-    where: { username },
+  const existingUser = await prisma.user.findFirst({
+    where: {
+      OR: [{ email }, { username }],
+    },
   });
 
   if (existingUser) {
-    throw new UserInputError(`Username ${username} already taken`);
+    throw new UserInputError(`Username or email already taken`);
   }
 
   const saltRounds = 10;
   const passwordHash = await bycrpt.hash(password, saltRounds);
   const user = {
     username,
+    email,
     password: passwordHash,
   };
 
@@ -65,12 +78,86 @@ const registerUser = async (_, args) => {
 
   const token = jwt.sign({ id: savedUser.id }, JWT_SECRET);
 
-  return { id: savedUser.id, username: savedUser.username, token };
+  await prisma.user.update({
+    where: {
+      id: savedUser.id,
+    },
+    data: {
+      token,
+    },
+  });
+
+  return {
+    id: savedUser.id,
+    username: savedUser.username,
+    email: savedUser.email,
+    token,
+  };
+};
+
+const getUser = async (_, args) => {
+  const { token } = args;
+
+  if (!token) {
+    throw new UserInputError('Token or Id not provided');
+  }
+  const user = await prisma.user.findFirst({
+    where: { token },
+  });
+  if (!user) {
+    throw new UserInputError(`User doesn't exist`);
+  }
+
+  const newToken = jwt.sign({ id: user.id }, JWT_SECRET);
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      token: newToken,
+    },
+  });
+
+  return {
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    token: newToken,
+  };
+};
+
+const logoutUser = async (_, __, ctx) => {
+  const { headers } = ctx.req;
+  const token = headers?.authorization || null;
+  console.log({ token, headers });
+  if (!token) {
+    throw new UserInputError('Token or Id not provided');
+  }
+  const user = await prisma.user.findFirst({
+    where: { token },
+  });
+  if (!user) {
+    throw new UserInputError(`User doesn't exist`);
+  }
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      token: '',
+    },
+  });
 };
 
 module.exports = {
   Mutation: {
     registerUser,
     loginUser,
+    logoutUser,
+  },
+  Query: {
+    getUser,
   },
 };
