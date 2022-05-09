@@ -11,13 +11,14 @@ model User {
   id        String      @id @default(uuid())
   username  String      @unique
   email     String?     @unique
+  token     String?
   password  String
   pic       String      @default("https://picsum.photos/200")
+  createdAt DateTime    @default(now())
+  comments  Comment[]
   user      Video[]
   likes     VideoLike[]
-  comments  Comment[]
   views     View[]
-  createdAt DateTime    @default(now())
 }
 
 model Video {
@@ -27,21 +28,20 @@ model Video {
   url         String
   thumbnail   String
   userId      String
-  user        User                @relation(fields: [userId], references: [id])
-  likes       VideoLike[]
-  comments    Comment[]
-  views       View[]
-  categories  CategoriesOnVideo[]
   createdAt   DateTime            @default(now())
+  user        User                @relation(fields: [userId], references: [id])
+  categories  CategoriesOnVideo[]
+  comments    Comment[]
+  likes       VideoLike[]
+  views       View[]
 }
 
 model CategoriesOnVideo {
-  video      Video    @relation(fields: [videoId], references: [id])
   videoId    String
-  category   Category @relation(fields: [categoryId], references: [id])
-  categoryId String 
+  categoryId String
   createdAt  DateTime @default(now())
-
+  category   Category @relation(fields: [categoryId], references: [id])
+  video      Video    @relation(fields: [videoId], references: [id])
 
   @@id([videoId, categoryId])
 }
@@ -50,9 +50,9 @@ model View {
   id        String   @id @default(uuid())
   userId    String?
   videoId   String
+  createdAt DateTime @default(now())
   user      User?    @relation(fields: [userId], references: [id])
   video     Video    @relation(fields: [videoId], references: [id])
-  createdAt DateTime @default(now())
 }
 
 model Comment {
@@ -60,9 +60,9 @@ model Comment {
   text      String
   userId    String
   videoId   String
+  createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
   video     Video    @relation(fields: [videoId], references: [id])
-  createdAt DateTime @default(now())
 }
 
 model VideoLike {
@@ -70,15 +70,14 @@ model VideoLike {
   like      Int      @default(0)
   userId    String
   videoId   String
+  createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
   video     Video    @relation(fields: [videoId], references: [id])
-  createdAt DateTime @default(now())
 }
 
 model Category {
   id        String              @id @default(uuid())
   name      String
-  videos    CategoriesOnVideo[]
   createdAt DateTime            @default(now())
+  videos    CategoriesOnVideo[]
 }
-

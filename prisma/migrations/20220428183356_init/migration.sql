@@ -3,6 +3,7 @@ CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "username" TEXT NOT NULL,
     "email" TEXT,
+    "token" TEXT,
     "password" TEXT NOT NULL,
     "pic" TEXT NOT NULL DEFAULT E'https://picsum.photos/200',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
