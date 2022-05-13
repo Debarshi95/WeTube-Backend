@@ -1,7 +1,8 @@
-const userResolver = require('./user');
-const videoResolver = require('./video');
-const categoryResolver = require('./category');
-const commentResolver = require('./comment');
+const userResolver = require('./user')
+const videoResolver = require('./video')
+const categoryResolver = require('./category')
+const commentResolver = require('./comment')
+const playlistResolver = require('./playlist')
 
 module.exports = {
   Query: {
@@ -9,8 +10,10 @@ module.exports = {
     ...categoryResolver.Query,
     ...commentResolver.Query,
     ...userResolver.Query,
+    ...playlistResolver.Query,
   },
   Mutation: {
     ...userResolver.Mutation,
+    ...playlistResolver.Mutation,
   },
-};
+}
