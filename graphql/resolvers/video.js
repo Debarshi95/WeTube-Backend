@@ -1,30 +1,39 @@
-const { UserInputError } = require('apollo-server-express');
-const prisma = require('../../utils/prisma');
+const { UserInputError } = require('apollo-server-express')
+const prisma = require('../../utils/prisma')
 
 const getAllVideos = async () => {
   try {
     const videos = await prisma.video.findMany({
       include: {
         user: true,
-        categories: {
-          include: {
-            category: true,
+        likes: {
+          select: {
+            id: true,
+            user: true,
+          },
+        },
+        _count: {
+          select: {
+            views: true,
           },
         },
       },
-    });
+    })
 
-    const result = videos.map((video) => ({
-      ...video,
-      categories: video.categories.map((category) => category.category),
-    }));
+    const result = videos.map((video) => {
+      return {
+        ...video,
+        views: video._count.views,
+        likes: video.likes.map((like) => ({ ...like })),
+      }
+    })
 
-    return result;
+    return result
   } catch (err) {
-    console.log({ err });
-    throw new UserInputError(err);
+    throw new UserInputError(err)
   }
-};
+}
+
 const getVideoById = async (_, args) => {
   try {
     const video = await prisma.video.findUnique({
@@ -33,28 +42,35 @@ const getVideoById = async (_, args) => {
       },
       include: {
         user: true,
-        categories: {
-          include: {
-            category: true,
+        likes: {
+          select: {
+            id: true,
+            user: true,
+          },
+        },
+        _count: {
+          select: {
+            views: true,
           },
         },
       },
-    });
+    })
 
     const result = {
       ...video,
-      categories: video.categories.map((category) => category.category),
-    };
+      views: video._count.views,
+      likes: video.likes.map((like) => ({ ...like })),
+    }
 
-    return result;
+    return result
   } catch (error) {
-    throw new UserInputError(error);
+    throw new UserInputError(error)
   }
-};
+}
 
 const getVideoByCategory = async (_, args) => {
   try {
-    const video = await prisma.video.findMany({
+    const videos = await prisma.video.findMany({
       where: {
         categories: {
           some: {
@@ -66,18 +82,38 @@ const getVideoByCategory = async (_, args) => {
       },
       include: {
         user: true,
+        likes: {
+          select: {
+            id: true,
+            user: true,
+          },
+        },
+        _count: {
+          select: {
+            views: true,
+          },
+        },
       },
-    });
+    })
 
-    return video;
+    const result = videos.map((video) => {
+      return {
+        ...video,
+        views: video._count.views,
+        likes: video.likes.map((like) => ({ ...like })),
+      }
+    })
+
+    return result
   } catch (error) {
-    throw new UserInputError(error);
+    throw new UserInputError(error)
   }
-};
+}
+
 module.exports = {
   Query: {
     getAllVideos,
     getVideoById,
     getVideoByCategory,
   },
-};
+}

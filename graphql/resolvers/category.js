@@ -1,5 +1,5 @@
-const { UserInputError } = require('apollo-server-express');
-const prisma = require('../../utils/prisma');
+const { UserInputError } = require('apollo-server-express')
+const prisma = require('../../utils/prisma')
 
 const getAllCategories = async () => {
   try {
@@ -10,26 +10,41 @@ const getAllCategories = async () => {
             video: {
               include: {
                 user: true,
+                likes: {
+                  select: {
+                    id: true,
+                    user: true,
+                  },
+                },
+                _count: {
+                  select: {
+                    views: true,
+                  },
+                },
               },
             },
           },
         },
       },
-    });
+    })
 
     const result = categories.map((category) => ({
       ...category,
-      videos: category.videos.map((video) => video.video),
-    }));
+      videos: category.videos.map((video) => ({
+        ...video.video,
+        views: video.video._count.views,
+        likes: video.video.likes,
+      })),
+    }))
 
-    return result;
+    return result
   } catch (error) {
-    throw new UserInputError(error);
+    throw new UserInputError(error)
   }
-};
+}
 
 module.exports = {
   Query: {
     getAllCategories,
   },
-};
+}

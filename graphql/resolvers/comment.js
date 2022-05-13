@@ -1,5 +1,5 @@
-const { UserInputError } = require('apollo-server-express');
-const prisma = require('../../utils/prisma');
+const { UserInputError } = require('apollo-server-express')
+const prisma = require('../../utils/prisma')
 
 const getAllComments = async () => {
   try {
@@ -8,16 +8,16 @@ const getAllComments = async () => {
         user: true,
         category: true,
       },
-    });
-    console.log({ comments });
-    return comments;
+    })
+
+    return comments
   } catch (error) {
-    throw new UserInputError(error);
+    throw new UserInputError(error)
   }
-};
+}
 
 module.exports = {
   Query: {
     getAllComments,
   },
-};
+}
