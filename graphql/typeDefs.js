@@ -1,10 +1,13 @@
-const { gql } = require('apollo-server');
+const { gql } = require('apollo-server')
 
 module.exports = gql`
   type Query {
     getAllVideos: [Video!]!
     getAllCategories: [Category!]!
     getAllComments: [Comment!]
+    getAllViews: [View!]
+    getAllWatch: [Watch!]
+    getAllPlaylists: [Playlist!]
     getVideoByCategory(categoryName: String!): [Video!]!
     getVideoById(videoId: String!): Video!
     getUser(token: String!): User!
@@ -14,7 +17,15 @@ module.exports = gql`
     id: ID!
     username: String!
     token: String!
+    pic: String!
     email: String!
+    views: [View!]
+    likes: [Like!]
+  }
+  type Watch {
+    id: ID!
+    user: User
+    video: Video!
   }
 
   type Message {
@@ -34,8 +45,9 @@ module.exports = gql`
     description: String
     url: String!
     thumbnail: String!
-    categories: [Category!]!
     user: User!
+    views: Int!
+    likes: [Like]
   }
 
   type Category {
@@ -43,6 +55,26 @@ module.exports = gql`
     name: String!
     videos: [Video!]!
   }
+
+  type Playlist {
+    id: ID!
+    name: String!
+    videos: [Video!]
+    user: User!
+  }
+
+  type View {
+    id: ID!
+    user: User
+    video: Video!
+  }
+  type Like {
+    id: ID!
+    like: Int!
+    user: User!
+    video: Video!
+  }
+
   type Mutation {
     registerUser(
       email: String!
@@ -51,6 +83,13 @@ module.exports = gql`
       confirmPassword: String!
     ): User!
     loginUser(email: String!, password: String!): User!
-    logoutUser: Message
+    logoutUser: Message!
+    updateView(videoId: String!): Message!
+    deleteView(viewId: String, type: String): Message!
+    updateLike(videoId: String!): Message!
+    createPlaylist(name: String!, videoId: String!): Message!
+    updatePlaylist(playlistId: String!, videoId: String!): Message!
+    deletePlaylist(playlistId: String!, videoId: String, type: String): Message!
+    updateWatchLater(videoId: String!): Message!
   }
-`;
+`
